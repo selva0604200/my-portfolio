@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selvendiran S | Data Engineer</title>
+    <!-- Premium Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --text-light-gray: #d4d4d4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            overflow-y: scroll; 
+        }
+
+        /* --- FIXED TRANSPARENT CANVAS --- */
+        #galaxy-canvas {
+            position: fixed; 
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0; 
+            background: transparent; 
+            pointer-events: none; 
+        }
+        
+        .base-black {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000;
+            z-index: -1;
+        }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed; top: 0; width: 100%;
+            padding: 1.5rem 2.5rem;
+            display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%);
+            z-index: 100;
+        }
+
+        .nav-left { display: flex; align-items: center; gap: 2rem; }
+        .logo { font-weight: 600; font-size: 1.2rem; color: #fff; text-decoration: none; letter-spacing: -0.5px;}
+        
+        .nav-links { display: flex; gap: 2rem; list-style: none; margin-left: 1rem;}
+        .nav-links a { color: var(--text-light-gray); text-decoration: none; font-size: 0.9rem; font-weight: 400; transition: color 0.2s; }
+        .nav-links a:hover { color: #fff; }
+
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #fff;
+            padding: 0.6rem 1.5rem; border-radius: 30px;
+            text-decoration: none; font-size: 0.9rem; font-weight: 500;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+        }
+        .btn-primary:hover { background: #fff; color: #000; }
+
+        /* --- Hero Section --- */
+        .hero {
+            height: 100vh;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            padding: 0 10vw; 
+            position: relative;
+            z-index: 5;
+            pointer-events: none; 
+        }
+
+        .hero h1 {
+            font-size: 5.5rem; 
+            font-weight: 400; 
+            letter-spacing: -0.04em;
+            margin: 0; 
+            line-height: 1;
+            text-shadow: 0 10px 30px rgba(0,0,0,1); 
+            opacity: 0;
+            animation: fadeUp 1.5s ease 0.3s forwards;
+            pointer-events: auto;
+        }
+
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .scroll-indicator {
+            position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+            color: var(--text-muted); font-size: 0.85rem;
+            animation: pulseOpacity 2s infinite;
+            pointer-events: auto;
+        }
+        @keyframes pulseOpacity { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+        /* --- CONTENT WRAPPER - TRANSPARENT --- */
+        .content-wrapper {
+            background: transparent; 
+            position: relative;
+            z-index: 10;
+            padding-top: 15vh;
+            padding-bottom: 4rem;
+            min-height: 100vh;
+        }
+
+        section { 
+            padding: 2rem 5%; 
+            max-width: 1100px; 
+            margin: 0 auto 4rem; 
+            background: transparent; 
+            border: none; 
+            box-shadow: none; 
+        }
+        
+        .section-header { margin-bottom: 3.5rem; }
+        .section-header h2 { 
+            font-size: 2.2rem; font-weight: 400; color: #fff;
+            border-bottom: none; 
+            letter-spacing: -0.02em;
+            text-shadow: 0 4px 12px rgba(0,0,0,1); 
+        }
+
+        .experience-item {
+            display: grid;
+            grid-template-columns: 1fr 2fr; 
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .exp-meta h3 { 
+            color: #fff; font-size: 1.4rem; font-weight: 600; 
+            margin-bottom: 0.4rem; letter-spacing: -0.01em;
+            text-shadow: 0 4px 8px rgba(0,0,0,1);
+        }
+        .exp-meta p { 
+            color: var(--text-muted); font-size: 1.05rem; font-weight: 400; 
+            text-shadow: 0 2px 4px rgba(0,0,0,1);
+        }
+        
+        .exp-details { 
+            color: var(--text-main); 
+            font-size: 1.15rem; 
+            font-weight: 400; 
+            line-height: 1.7;
+            text-shadow: 0 4px 12px rgba(0,0,0,1); 
+        }
+        .exp-details p { margin-bottom: 1.5rem; }
+
+        /* Tech Tags */
+        .tech-list { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+        .tech-tag {
+            background: rgba(0, 0, 0, 0.75); 
+            border: 1px solid rgba(255, 255, 255, 0.3); 
+            color: #fff;
+            padding: 0.6rem 1.2rem; 
+            border-radius: 30px; 
+            font-size: 0.9rem;
+            backdrop-filter: blur(5px);
+        }
+
+        footer { text-align: center; padding: 4rem 0 2rem; color: #888; font-size: 0.9rem; text-shadow: 0 2px 4px #000; }
+
+        @media (max-width: 768px) {
+            .hero { flex-direction: column; justify-content: center; gap: 2rem; }
+            .hero h1 { font-size: 3rem; }
+            .nav-links { display: none; }
+            section { padding: 1.5rem; }
+            .experience-item { grid-template-columns: 1fr; gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="base-black"></div>
+
+    <canvas id="galaxy-canvas"></canvas>
+
+    <div class="ui-layer">
+        
+        <nav>
+            <div class="nav-left">
+                <a href="#" class="logo">Selvendiran S</a>
+                <ul class="nav-links">
+                    <li><a href="#about">The Destination</a></li>
+                    <li><a href="#experience">Experience</a></li>
+                    <li><a href="#skills">Infrastructure</a></li>
+                </ul>
+            </div>
+            <div class="nav-right">
+                <a href="Selvendiran_Resume.pdf" class="btn-primary" download>Download CV</a>
+            </div>
+        </nav>
+
+        <main class="hero">
+            <h1>Data</h1>
+            <h1>Engineer</h1>
+            <div class="scroll-indicator">Scroll down to blast stars</div>
+        </main>
+
+        <div class="content-wrapper">
+            
+            <section id="about">
+                <div class="section-header">
+                    <h2>01 / The Destination</h2>
+                </div>
+                
+                <div class="experience-item">
+                    <div class="exp-meta">
+                        <h3>Lead Data Architect</h3>
+                        <p>Career Trajectory</p>
+                    </div>
+                    <div class="exp-details">
+                        <p>My core focus is designing enterprise-grade, event-driven cloud platforms. I specialize in bridging the gap between vast, unstructured data lakes and clean, queryable architectures.</p>
+                        <p>I aim to leverage streaming analytics and intelligent infrastructure to solve complex industry challenges at scale.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="experience">
+                <div class="section-header">
+                    <h2>02 / Experience</h2>
+                </div>
+                
+                <div class="experience-item">
+                    <div class="exp-meta">
+                        <h3>Cognizant</h3>
+                        <p>Data Engineer</p>
+                        <p style="margin-top: 0.3rem;">Present &middot; Chennai</p>
+                    </div>
+                    <div class="exp-details">
+                        <p>Designing and orchestrating highly scalable ETL/ELT pipelines to process massive volumes of enterprise data with minimal latency.</p>
+                        <p>Driving the migration of legacy on-premise systems to resilient modern cloud architectures, optimizing complex SQL queries and database schemas to significantly reduce reporting lag times.</p>
+                        <div class="tech-list">
+                            <span class="tech-tag">Apache Spark</span>
+                            <span class="tech-tag">Airflow</span>
+                            <span class="tech-tag">AWS</span>
+                            <span class="tech-tag">Azure</span>
+                            <span class="tech-tag">Snowflake</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="skills">
+                <div class="section-header">
+                    <h2>03 / Infrastructure Stack</h2>
+                </div>
+                
+                <div class="experience-item">
+                    <div class="exp-meta">
+                        <h3>Core Capabilities</h3>
+                        <p>Tools & Cloud</p>
+                    </div>
+                    <div class="exp-details">
+                        <p>Proficient in deploying and maintaining resilient data ecosystems utilizing modern orchestration tools, cloud compute engines, and scalable warehousing.</p>
+                        <div class="tech-list">
+                            <span class="tech-tag">Apache Spark</span>
+                            <span class="tech-tag">Apache Airflow</span>
+                            <span class="tech-tag">AWS (S3, Glue)</span>
+                            <span class="tech-tag">Azure Data Factory</span>
+                            <span class="tech-tag">Snowflake</span>
+                            <span class="tech-tag">PostgreSQL</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <footer>
+                Selvendiran S &copy; 2026. Architecting data.
+            </footer>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- NON-COLLIDING CONTROLLED SCROLL BLAST GALAXY ENGINE      -->
+    <!-- ======================================================== -->
+    <script>
+        const canvas = document.getElementById('galaxy-canvas');
+        const ctx = canvas.getContext('2d');
+        const experienceSection = document.getElementById('experience');
+
+        let width, height, cx, cy;
+        let mouseX = -1000, mouseY = -1000;
+        let targetRotationX = 0, targetRotationY = 0;
+        let currentRotationX = 0, currentRotationY = 0;
+
+        // Controlled Scroll Tracking
+        let targetScrollProgress = 0;
+        let currentScrollProgress = 0;
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            cx = width / 2;
+            cy = height * 0.45; 
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            targetRotationY = ((e.clientX - cx) / cx) * 0.3; 
+            targetRotationX = ((e.clientY - cy) / cy) * 0.3; 
+        });
+
+        document.addEventListener('mouseleave', () => {
+            mouseX = -1000;
+            mouseY = -1000;
+        });
+
+        // Calculate scroll fraction mapped up to section "02 / Experience"
+        window.addEventListener('scroll', () => {
+            const sectionTop = experienceSection.offsetTop;
+            const scrollY = window.scrollY;
+            
+            // Reaches 1.0 exactly when scrolling reaches Section 02 / Experience
+            let progress = scrollY / Math.max(1, sectionTop);
+            targetScrollProgress = Math.min(Math.max(progress, 0), 1.2); // Smooth clamp
+        });
+
+        const numStars = 4500; 
+        const arms = 2; 
+        const baseRotationSpeed = 0.0025; 
+        
+        const colors = ['#ffffff', '#ffffff', '#cde3ff', '#ffdfc2', '#a3cfff'];
+
+        class Star {
+            constructor() {
+                const r = Math.random();
+                // Base spiral distance
+                this.baseDistance = Math.pow(r, 1.5) * (Math.min(width, height) * 0.65);
+                
+                const armAngle = (Math.PI * 2 / arms) * Math.floor(Math.random() * arms);
+                const twist = this.baseDistance * 0.01; 
+                
+                const scatterMult = (this.baseDistance / (Math.min(width, height) * 0.65)) * 1.2 + 0.1;
+                const noise = (Math.random() - 0.5) * scatterMult * Math.PI;
+                
+                this.angle = armAngle + twist + noise;
+                
+                const thickness = Math.max(1, 60 - (this.baseDistance * 0.1));
+                this.z = (Math.random() - 0.5) * thickness;
+
+                this.baseSize = Math.random() * 1.8 + 0.2;
+                
+                if (this.baseDistance < 40) {
+                    this.color = '#ffffff';
+                } else {
+                    this.color = colors[Math.floor(Math.random() * colors.length)];
+                }
+                
+                this.isBright = Math.random() > 0.92;
+
+                // Mouse interaction displacement
+                this.dispX = 0;
+                this.dispY = 0;
+
+                // Unique radial blast multiplier per star for non-colliding expansion
+                this.blastSpeedFactor = 1.0 + (this.baseDistance / (Math.min(width, height) * 0.65)) * 2.5;
+            }
+
+            draw() {
+                // Acceleration during scroll blast
+                let effectiveSpeed = baseRotationSpeed * (1 + currentScrollProgress * 3.5);
+                this.angle -= effectiveSpeed;
+
+                // Non-colliding Radial Blast Math:
+                // Every star expands outward along its unique radial trajectory vector
+                let expansionFactor = 1 + (currentScrollProgress * 3.2 * this.blastSpeedFactor);
+                let currentDistance = this.baseDistance * expansionFactor;
+
+                let x = Math.cos(this.angle) * currentDistance;
+                let y = Math.sin(this.angle) * currentDistance;
+                let z = this.z * (1 + currentScrollProgress * 1.5);
+
+                currentRotationX += (targetRotationX - currentRotationX) * 0.05;
+                currentRotationY += (targetRotationY - currentRotationY) * 0.05;
+                
+                const tiltX = -0.4 + currentRotationX; 
+                const tiltY = currentRotationY;
+
+                let x1 = x * Math.cos(tiltY) - z * Math.sin(tiltY);
+                let z1 = z * Math.cos(tiltY) + x * Math.sin(tiltY);
+                let y2 = y * Math.cos(tiltX) - z1 * Math.sin(tiltX);
+                let z2 = z1 * Math.cos(tiltX) + y * Math.sin(tiltX);
+
+                const perspective = 800;
+                const scale = perspective / (perspective + z2);
+                
+                let screenX = cx + x1 * scale;
+                let screenY = cy + y2 * scale;
+
+                // Mouse interaction physics
+                const dx = (screenX + this.dispX) - mouseX;
+                const dy = (screenY + this.dispY) - mouseY;
+                const distToMouse = Math.sqrt(dx * dx + dy * dy);
+                const repulsionRadius = 140;
+
+                if (distToMouse < repulsionRadius && mouseX > 0) {
+                    const force = Math.pow((repulsionRadius - distToMouse) / repulsionRadius, 2);
+                    this.dispX += (dx / distToMouse) * force * 15;
+                    this.dispY += (dy / distToMouse) * force * 15;
+                }
+
+                this.dispX *= 0.88;
+                this.dispY *= 0.88;
+
+                screenX += this.dispX;
+                screenY += this.dispY;
+
+                // Opacity fades smoothly as stars blast outward
+                const maxDist = Math.min(width, height) * (0.65 + currentScrollProgress * 2.5);
+                let opacity = 1 - (currentDistance / maxDist);
+                if (opacity < 0) opacity = 0;
+                
+                let currentSize = (this.baseSize + currentScrollProgress * 0.6) * scale;
+                if (this.isBright) currentSize += Math.random() * 0.8;
+
+                ctx.beginPath();
+                ctx.arc(screenX, screenY, Math.max(0.1, currentSize), 0, Math.PI * 2);
+                
+                if (this.isBright || currentDistance < 60) {
+                    ctx.shadowBlur = (20 + currentScrollProgress * 15) * scale;
+                    ctx.shadowColor = this.color;
+                } else {
+                    ctx.shadowBlur = 0;
+                }
+
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = opacity;
+                ctx.fill();
+            }
+        }
+
+        const stars = [];
+        for (let i = 0; i < numStars; i++) stars.push(new Star());
+
+        function drawCore() {
+            ctx.shadowBlur = 0;
+            
+            // Core expands and dissolves gracefully as Section 02 approaches
+            let coreRadius = 180 + currentScrollProgress * 200;
+            let coreOpacity = Math.max(0.05, 1.0 - currentScrollProgress * 0.85);
+
+            ctx.globalAlpha = coreOpacity;
+            const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreRadius);
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+            gradient.addColorStop(0.15, 'rgba(205, 227, 255, 0.5)');
+            gradient.addColorStop(0.4, 'rgba(205, 227, 255, 0.15)');
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            
+            // Smooth interpolation (lerp) for scroll progress
+            currentScrollProgress += (targetScrollProgress - currentScrollProgress) * 0.08;
+
+            drawCore();
+            
+            for (let i = 0; i < numStars; i++) {
+                stars[i].draw();
+            }
+            
+            ctx.globalAlpha = 1.0;
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
