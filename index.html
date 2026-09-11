@@ -1,499 +1,339 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Selvendiran S | Data Engineer</title>
-    <!-- Premium Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --bg-color: #000000;
-            --text-main: #ffffff;
-            --text-muted: #a1a1aa;
-            --text-light-gray: #d4d4d4;
-        }
+import React, { useRef, useMemo, useState, useEffect } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { motion } from 'framer-motion';
+import * as THREE from 'three';
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            -webkit-font-smoothing: antialiased;
-            scroll-behavior: smooth;
-        }
+// ========================================================
+// 3D S-SHAPE GALAXY & OMNI-DIRECTIONAL BOMB BLAST ENGINE
+// ========================================================
+function SGalaxy() {
+  const groupRef = useRef();
+  const pointsRef = useRef();
+  const coreRef = useRef();
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            overflow-x: hidden;
-            overflow-y: scroll; 
-        }
+  const count = 6500;
+  const arms = 2;
 
-        /* --- FIXED TRANSPARENT CANVAS --- */
-        #galaxy-canvas {
-            position: fixed; 
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 0; 
-            background: transparent; 
-            pointer-events: none; 
-        }
-        
-        .base-black {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #000;
-            z-index: -1;
-        }
+  // Generate S-Shape Math & Random 3D Blast Direction Vectors
+  const { positions, basePositions, colors, blastVectors } = useMemo(() => {
+    const pos = new Float32Array(count * 3);
+    const basePos = new Float32Array(count * 3);
+    const col = new Float32Array(count * 3);
+    const blastVecs = new Float32Array(count * 3);
 
-        /* --- Navigation --- */
-        nav {
-            position: fixed; top: 0; width: 100%;
-            padding: 1.5rem 2.5rem;
-            display: flex; justify-content: space-between; align-items: center;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%);
-            z-index: 100;
-        }
+    const cyanColors = [
+      new THREE.Color('#ffffff'),
+      new THREE.Color('#e0f4ff'),
+      new THREE.Color('#a6e1ff'),
+      new THREE.Color('#70c8ff'),
+      new THREE.Color('#00f0ff')
+    ];
+    const warmColors = [
+      new THREE.Color('#ffb578'),
+      new THREE.Color('#ffd1a3'),
+      new THREE.Color('#ff843d')
+    ];
 
-        .nav-left { display: flex; align-items: center; gap: 2rem; }
-        .logo { font-weight: 600; font-size: 1.2rem; color: #fff; text-decoration: none; letter-spacing: -0.5px;}
-        
-        .nav-links { display: flex; gap: 2rem; list-style: none; margin-left: 1rem;}
-        .nav-links a { color: var(--text-light-gray); text-decoration: none; font-size: 0.9rem; font-weight: 400; transition: color 0.2s; }
-        .nav-links a:hover { color: #fff; }
+    const maxDist = 8;
 
-        .btn-primary {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            color: #fff;
-            padding: 0.6rem 1.5rem; border-radius: 30px;
-            text-decoration: none; font-size: 0.9rem; font-weight: 500;
-            transition: all 0.2s;
-            backdrop-filter: blur(10px);
-        }
-        .btn-primary:hover { background: #fff; color: #000; }
+    for (let i = 0; i < count; i++) {
+      const r = Math.random();
+      const dist = Math.pow(r, 1.35) * maxDist;
+      const armAngle = (Math.PI * 2 / arms) * Math.floor(Math.random() * arms);
+      const twist = Math.pow(dist * 0.15, 1.15);
+      const scatter = (dist / maxDist) * 0.45 + 0.05;
+      const noise = (Math.random() - 0.5) * scatter * Math.PI;
 
-        /* --- Hero Section --- */
-        .hero {
-            height: 100vh;
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            padding: 0 10vw; 
-            position: relative;
-            z-index: 5;
-            pointer-events: none; 
-        }
+      const angle = armAngle + twist + noise;
+      const thickness = Math.max(0.1, 1.5 - (dist * 0.15));
+      const z = ((Math.random() - 0.5) + (Math.random() - 0.5)) * thickness;
 
-        .hero h1 {
-            font-size: 5.5rem; 
-            font-weight: 400; 
-            letter-spacing: -0.04em;
-            margin: 0; 
-            line-height: 1;
-            text-shadow: 0 10px 30px rgba(0,0,0,1); 
-            opacity: 0;
-            animation: fadeUp 1.5s ease 0.3s forwards;
-            pointer-events: auto;
-        }
+      const x = Math.cos(angle) * dist;
+      const y = Math.sin(angle) * dist;
 
-        @keyframes fadeUp {
-            to { opacity: 1; transform: translateY(0); }
-        }
+      pos[i * 3] = x;
+      pos[i * 3 + 1] = y;
+      pos[i * 3 + 2] = z;
 
-        .scroll-indicator {
-            position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
-            color: var(--text-muted); font-size: 0.85rem;
-            animation: pulseOpacity 2s infinite;
-            pointer-events: auto;
-        }
-        @keyframes pulseOpacity { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+      basePos[i * 3] = x;
+      basePos[i * 3 + 1] = y;
+      basePos[i * 3 + 2] = z;
 
-        /* --- CONTENT WRAPPER - TRANSPARENT --- */
-        .content-wrapper {
-            background: transparent; 
-            position: relative;
-            z-index: 10;
-            padding-top: 15vh;
-            padding-bottom: 4rem;
-            min-height: 100vh;
-        }
+      // Random 3D Spherical Vector for Bomb Blast Detonation
+      const u = Math.random();
+      const v = Math.random();
+      const theta = u * 2.0 * Math.PI;
+      const phi = Math.acos(2.0 * v - 1.0);
+      const blastMagnitude = 15 + Math.random() * 35;
 
-        section { 
-            padding: 2rem 5%; 
-            max-width: 1100px; 
-            margin: 0 auto 4rem; 
-            background: transparent; 
-            border: none; 
-            box-shadow: none; 
-        }
-        
-        .section-header { margin-bottom: 3.5rem; }
-        .section-header h2 { 
-            font-size: 2.2rem; font-weight: 400; color: #fff;
-            border-bottom: none; 
-            letter-spacing: -0.02em;
-            text-shadow: 0 4px 12px rgba(0,0,0,1); 
-        }
+      blastVecs[i * 3] = Math.sin(phi) * Math.cos(theta) * blastMagnitude;
+      blastVecs[i * 3 + 1] = Math.sin(phi) * Math.sin(theta) * blastMagnitude;
+      blastVecs[i * 3 + 2] = Math.cos(phi) * blastMagnitude;
 
-        .experience-item {
-            display: grid;
-            grid-template-columns: 1fr 2fr; 
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
+      // Color tiering
+      const isWarm = Math.random() < 0.24 && dist > 0.5;
+      const color = isWarm
+        ? warmColors[Math.floor(Math.random() * warmColors.length)]
+        : cyanColors[Math.floor(Math.random() * cyanColors.length)];
 
-        .exp-meta h3 { 
-            color: #fff; font-size: 1.4rem; font-weight: 600; 
-            margin-bottom: 0.4rem; letter-spacing: -0.01em;
-            text-shadow: 0 4px 8px rgba(0,0,0,1);
-        }
-        .exp-meta p { 
-            color: var(--text-muted); font-size: 1.05rem; font-weight: 400; 
-            text-shadow: 0 2px 4px rgba(0,0,0,1);
-        }
-        
-        .exp-details { 
-            color: var(--text-main); 
-            font-size: 1.15rem; 
-            font-weight: 400; 
-            line-height: 1.7;
-            text-shadow: 0 4px 12px rgba(0,0,0,1); 
-        }
-        .exp-details p { margin-bottom: 1.5rem; }
+      col[i * 3] = color.r;
+      col[i * 3 + 1] = color.g;
+      col[i * 3 + 2] = color.b;
+    }
 
-        /* Tech Tags */
-        .tech-list { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
-        .tech-tag {
-            background: rgba(0, 0, 0, 0.75); 
-            border: 1px solid rgba(255, 255, 255, 0.3); 
-            color: #fff;
-            padding: 0.6rem 1.2rem; 
-            border-radius: 30px; 
-            font-size: 0.9rem;
-            backdrop-filter: blur(5px);
-        }
+    return {
+      positions: pos,
+      basePositions: basePos,
+      colors: col,
+      blastVectors: blastVecs
+    };
+  }, [count]);
 
-        footer { text-align: center; padding: 4rem 0 2rem; color: #888; font-size: 0.9rem; text-shadow: 0 2px 4px #000; }
+  useFrame((state) => {
+    const scrollY = window.scrollY;
+    const targetY = window.innerHeight * 1.2;
+    const scrollProgress = Math.min(1.25, Math.max(0, scrollY / Math.max(1, targetY)));
+    const blastPower = Math.pow(scrollProgress, 2.5);
 
-        @media (max-width: 768px) {
-            .hero { flex-direction: column; justify-content: center; gap: 2rem; }
-            .hero h1 { font-size: 3rem; }
-            .nav-links { display: none; }
-            section { padding: 1.5rem; }
-            .experience-item { grid-template-columns: 1fr; gap: 1rem; }
-        }
-    </style>
-</head>
-<body>
-    
-    <div class="base-black"></div>
+    // 1. Rotate & Tilt Group based on Mouse Cursor
+    if (groupRef.current) {
+      groupRef.current.rotation.y = THREE.MathUtils.lerp(
+        groupRef.current.rotation.y,
+        state.mouse.x * 0.8,
+        0.05
+      );
+      groupRef.current.rotation.x = THREE.MathUtils.lerp(
+        groupRef.current.rotation.x,
+        -state.mouse.y * 0.5 - 0.35,
+        0.05
+      );
+      groupRef.current.rotation.z -= 0.0015; // Smooth ambient rotation
+    }
 
-    <canvas id="galaxy-canvas"></canvas>
+    // 2. Detonate Stars Outward along 3D Vectors
+    if (pointsRef.current) {
+      const posAttr = pointsRef.current.geometry.attributes.position;
+      for (let i = 0; i < count; i++) {
+        const bx = basePositions[i * 3];
+        const by = basePositions[i * 3 + 1];
+        const bz = basePositions[i * 3 + 2];
 
-    <div class="ui-layer">
-        
-        <nav>
-            <div class="nav-left">
-                <a href="#" class="logo">Selvendiran S</a>
-                <ul class="nav-links">
-                    <li><a href="#about">The Destination</a></li>
-                    <li><a href="#experience">Experience</a></li>
-                    <li><a href="#skills">Infrastructure</a></li>
-                </ul>
-            </div>
-            <div class="nav-right">
-                <a href="Selvendiran_Resume.pdf" class="btn-primary" download>Download CV</a>
-            </div>
-        </nav>
+        const vx = blastVectors[i * 3];
+        const vy = blastVectors[i * 3 + 1];
+        const vz = blastVectors[i * 3 + 2];
 
-        <main class="hero">
-            <h1>Data</h1>
-            <h1>Engineer</h1>
-            <div class="scroll-indicator">Scroll down to blast stars</div>
-        </main>
+        posAttr.setXYZ(
+          i,
+          bx + vx * blastPower,
+          by + vy * blastPower,
+          bz + vz * blastPower
+        );
+      }
+      posAttr.needsUpdate = true;
+      pointsRef.current.material.opacity = Math.max(0, 1 - blastPower * 0.85);
+    }
 
-        <div class="content-wrapper">
-            
-            <section id="about">
-                <div class="section-header">
-                    <h2>01 / The Destination</h2>
-                </div>
-                
-                <div class="experience-item">
-                    <div class="exp-meta">
-                        <h3>Lead Data Architect</h3>
-                        <p>Career Trajectory</p>
-                    </div>
-                    <div class="exp-details">
-                        <p>My core focus is designing enterprise-grade, event-driven cloud platforms. I specialize in bridging the gap between vast, unstructured data lakes and clean, queryable architectures.</p>
-                        <p>I aim to leverage streaming analytics and intelligent infrastructure to solve complex industry challenges at scale.</p>
-                    </div>
-                </div>
-            </section>
+    // 3. Central Core Light reacts & fades with the bomb blast
+    if (coreRef.current) {
+      const scale = 1 + blastPower * 3;
+      coreRef.current.scale.set(scale, scale, scale);
+      coreRef.current.material.opacity = Math.max(0, 0.95 - blastPower * 1.2);
+    }
+  });
 
-            <section id="experience">
-                <div class="section-header">
-                    <h2>02 / Experience</h2>
-                </div>
-                
-                <div class="experience-item">
-                    <div class="exp-meta">
-                        <h3>Cognizant</h3>
-                        <p>Data Engineer</p>
-                        <p style="margin-top: 0.3rem;">Present &middot; Chennai</p>
-                    </div>
-                    <div class="exp-details">
-                        <p>Designing and orchestrating highly scalable ETL/ELT pipelines to process massive volumes of enterprise data with minimal latency.</p>
-                        <p>Driving the migration of legacy on-premise systems to resilient modern cloud architectures, optimizing complex SQL queries and database schemas to significantly reduce reporting lag times.</p>
-                        <div class="tech-list">
-                            <span class="tech-tag">Apache Spark</span>
-                            <span class="tech-tag">Airflow</span>
-                            <span class="tech-tag">AWS</span>
-                            <span class="tech-tag">Azure</span>
-                            <span class="tech-tag">Snowflake</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
+  return (
+    <group ref={groupRef}>
+      {/* Connected Central Core Light at (0,0,0) */}
+      <mesh ref={coreRef} position={[0, 0, 0]}>
+        <sphereGeometry args={[0.5, 32, 32]} />
+        <meshBasicMaterial color="#ffffff" transparent opacity={0.95} />
+      </mesh>
 
-            <section id="skills">
-                <div class="section-header">
-                    <h2>03 / Infrastructure Stack</h2>
-                </div>
-                
-                <div class="experience-item">
-                    <div class="exp-meta">
-                        <h3>Core Capabilities</h3>
-                        <p>Tools & Cloud</p>
-                    </div>
-                    <div class="exp-details">
-                        <p>Proficient in deploying and maintaining resilient data ecosystems utilizing modern orchestration tools, cloud compute engines, and scalable warehousing.</p>
-                        <div class="tech-list">
-                            <span class="tech-tag">Apache Spark</span>
-                            <span class="tech-tag">Apache Airflow</span>
-                            <span class="tech-tag">AWS (S3, Glue)</span>
-                            <span class="tech-tag">Azure Data Factory</span>
-                            <span class="tech-tag">Snowflake</span>
-                            <span class="tech-tag">PostgreSQL</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            
-            <footer>
-                Selvendiran S &copy; 2026. Architecting data.
-            </footer>
+      <pointLight position={[0, 0, 0]} color="#00f0ff" intensity={4} distance={12} />
+
+      {/* S-Shape Star Array */}
+      <points ref={pointsRef}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            count={count}
+            array={positions}
+            itemSize={3}
+          />
+          <bufferAttribute
+            attach="attributes-color"
+            count={count}
+            array={colors}
+            itemSize={3}
+          />
+        </bufferGeometry>
+        <pointsMaterial
+          size={0.08}
+          vertexColors
+          transparent
+          opacity={1.0}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </points>
+    </group>
+  );
+}
+
+// ========================================================
+// MAIN APPLICATION COMPONENT
+// ========================================================
+export default function App() {
+  return (
+    <div className="bg-black text-white min-h-screen relative overflow-x-hidden font-sans selection:bg-cyan-500 selection:text-black">
+      
+      {/* Fixed 3D Canvas Background */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <Canvas camera={{ position: [0, 0, 10], fov: 60 }}>
+          <color attach="background" args={['#000000']} />
+          <SGalaxy />
+        </Canvas>
+      </div>
+
+      {/* Navigation */}
+      <nav className="fixed top-0 w-full px-8 py-6 flex justify-between items-center z-50 bg-gradient-to-b from-black/90 to-transparent backdrop-blur-sm">
+        <div className="flex items-center gap-8">
+          <a href="#" className="text-xl font-semibold tracking-tight uppercase hover:text-cyan-400 transition-colors">
+            Selvendiran S
+          </a>
+          <ul className="hidden md:flex gap-8 text-sm font-medium text-zinc-400 uppercase tracking-wider">
+            <li><a href="#about" className="hover:text-white transition-colors">The Destination</a></li>
+            <li><a href="#experience" className="hover:text-white transition-colors">Experience</a></li>
+            <li><a href="#skills" className="hover:text-white transition-colors">Infrastructure</a></li>
+          </ul>
         </div>
-    </div>
+        <a
+          href="Selvendiran_Resume.pdf"
+          download
+          className="bg-white/10 border border-white/25 hover:bg-white hover:text-black px-6 py-2.5 rounded-full text-sm font-medium transition-all backdrop-blur-md"
+        >
+          Download CV
+        </a>
+      </nav>
 
-    <!-- ======================================================== -->
-    <!-- NON-COLLIDING CONTROLLED SCROLL BLAST GALAXY ENGINE      -->
-    <!-- ======================================================== -->
-    <script>
-        const canvas = document.getElementById('galaxy-canvas');
-        const ctx = canvas.getContext('2d');
-        const experienceSection = document.getElementById('experience');
+      {/* Hero Section */}
+      <main className="h-screen flex justify-between items-center px-[8vw] relative z-10 pointer-events-none">
+        <h1 className="text-6xl md:text-8xl font-normal tracking-tight text-white drop-shadow-2xl pointer-events-auto">
+          Data
+        </h1>
+        <h1 className="text-6xl md:text-8xl font-normal tracking-tight text-white drop-shadow-2xl pointer-events-auto">
+          Engineer
+        </h1>
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-zinc-500 text-xs tracking-widest uppercase animate-pulse pointer-events-auto">
+          Scroll down to blast stars
+        </div>
+      </main>
 
-        let width, height, cx, cy;
-        let mouseX = -1000, mouseY = -1000;
-        let targetRotationX = 0, targetRotationY = 0;
-        let currentRotationX = 0, currentRotationY = 0;
-
-        // Controlled Scroll Tracking
-        let targetScrollProgress = 0;
-        let currentScrollProgress = 0;
-
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-            cx = width / 2;
-            cy = height * 0.45; 
-        }
-        window.addEventListener('resize', resize);
-        resize();
-
-        document.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-            
-            targetRotationY = ((e.clientX - cx) / cx) * 0.3; 
-            targetRotationX = ((e.clientY - cy) / cy) * 0.3; 
-        });
-
-        document.addEventListener('mouseleave', () => {
-            mouseX = -1000;
-            mouseY = -1000;
-        });
-
-        // Calculate scroll fraction mapped up to section "02 / Experience"
-        window.addEventListener('scroll', () => {
-            const sectionTop = experienceSection.offsetTop;
-            const scrollY = window.scrollY;
-            
-            // Reaches 1.0 exactly when scrolling reaches Section 02 / Experience
-            let progress = scrollY / Math.max(1, sectionTop);
-            targetScrollProgress = Math.min(Math.max(progress, 0), 1.2); // Smooth clamp
-        });
-
-        const numStars = 4500; 
-        const arms = 2; 
-        const baseRotationSpeed = 0.0025; 
+      {/* Scrollable Content Wrapper */}
+      <div className="relative z-10 pt-[15vh] pb-16 min-h-screen">
         
-        const colors = ['#ffffff', '#ffffff', '#cde3ff', '#ffdfc2', '#a3cfff'];
+        {/* Section 01: Destination */}
+        <section id="about" className="max-w-5xl mx-auto px-6 mb-24">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl md:text-4xl font-normal mb-12 border-b-0 pb-0 tracking-tight">
+              01 / The Destination
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div>
+                <h3 className="text-xl font-semibold text-white">Lead Data Architect</h3>
+                <p className="text-zinc-400 text-base mt-1">Career Trajectory</p>
+              </div>
+              <div className="md:col-span-2 text-zinc-300 text-lg leading-relaxed space-y-4">
+                <p>
+                  My core focus is designing enterprise-grade, event-driven cloud platforms. I specialize in bridging the gap between vast, unstructured data lakes and clean, queryable architectures.
+                </p>
+                <p>
+                  I aim to leverage streaming analytics and intelligent infrastructure to solve complex industry challenges at scale.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </section>
 
-        class Star {
-            constructor() {
-                const r = Math.random();
-                // Base spiral distance
-                this.baseDistance = Math.pow(r, 1.5) * (Math.min(width, height) * 0.65);
-                
-                const armAngle = (Math.PI * 2 / arms) * Math.floor(Math.random() * arms);
-                const twist = this.baseDistance * 0.01; 
-                
-                const scatterMult = (this.baseDistance / (Math.min(width, height) * 0.65)) * 1.2 + 0.1;
-                const noise = (Math.random() - 0.5) * scatterMult * Math.PI;
-                
-                this.angle = armAngle + twist + noise;
-                
-                const thickness = Math.max(1, 60 - (this.baseDistance * 0.1));
-                this.z = (Math.random() - 0.5) * thickness;
+        {/* Section 02: Experience */}
+        <section id="experience" className="max-w-5xl mx-auto px-6 mb-24">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl md:text-4xl font-normal mb-12 border-b-0 pb-0 tracking-tight">
+              02 / Experience
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div>
+                <h3 className="text-xl font-semibold text-white">Cognizant</h3>
+                <p className="text-zinc-400 text-base mt-1">Data Engineer</p>
+                <p className="text-zinc-500 text-sm mt-1">Present &middot; Chennai</p>
+              </div>
+              <div className="md:col-span-2 text-zinc-300 text-lg leading-relaxed space-y-4">
+                <p>
+                  Designing and orchestrating highly scalable ETL/ELT pipelines to process massive volumes of enterprise data with minimal latency.
+                </p>
+                <p>
+                  Driving the migration of legacy on-premise systems to resilient modern cloud architectures, optimizing complex SQL queries and database schemas to significantly reduce reporting lag times.
+                </p>
+                <div className="flex flex-wrap gap-3 pt-4">
+                  {['Apache Spark', 'Airflow', 'AWS', 'Azure', 'Snowflake'].map((tech) => (
+                    <span key={tech} className="bg-black/75 border border-white/30 text-white px-5 py-2 rounded-full text-sm backdrop-blur-md">
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </section>
 
-                this.baseSize = Math.random() * 1.8 + 0.2;
-                
-                if (this.baseDistance < 40) {
-                    this.color = '#ffffff';
-                } else {
-                    this.color = colors[Math.floor(Math.random() * colors.length)];
-                }
-                
-                this.isBright = Math.random() > 0.92;
+        {/* Section 03: Skills */}
+        <section id="skills" className="max-w-5xl mx-auto px-6 mb-24">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl md:text-4xl font-normal mb-12 border-b-0 pb-0 tracking-tight">
+              03 / Infrastructure Stack
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div>
+                <h3 className="text-xl font-semibold text-white">Core Capabilities</h3>
+                <p className="text-zinc-400 text-base mt-1">Tools & Cloud</p>
+              </div>
+              <div className="md:col-span-2 text-zinc-300 text-lg leading-relaxed space-y-4">
+                <p>
+                  Proficient in deploying and maintaining resilient data ecosystems utilizing modern orchestration tools, cloud compute engines, and scalable warehousing.
+                </p>
+                <div className="flex flex-wrap gap-3 pt-4">
+                  {['Apache Spark', 'Apache Airflow', 'AWS (S3, Glue)', 'Azure Data Factory', 'Snowflake', 'PostgreSQL'].map((tech) => (
+                    <span key={tech} className="bg-black/75 border border-white/30 text-white px-5 py-2 rounded-full text-sm backdrop-blur-md">
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </section>
 
-                // Mouse interaction displacement
-                this.dispX = 0;
-                this.dispY = 0;
+        {/* Footer */}
+        <footer className="text-center py-12 text-zinc-500 text-sm">
+          Selvendiran S &copy; 2026. Architecting data.
+        </footer>
+      </div>
 
-                // Unique radial blast multiplier per star for non-colliding expansion
-                this.blastSpeedFactor = 1.0 + (this.baseDistance / (Math.min(width, height) * 0.65)) * 2.5;
-            }
-
-            draw() {
-                // Acceleration during scroll blast
-                let effectiveSpeed = baseRotationSpeed * (1 + currentScrollProgress * 3.5);
-                this.angle -= effectiveSpeed;
-
-                // Non-colliding Radial Blast Math:
-                // Every star expands outward along its unique radial trajectory vector
-                let expansionFactor = 1 + (currentScrollProgress * 3.2 * this.blastSpeedFactor);
-                let currentDistance = this.baseDistance * expansionFactor;
-
-                let x = Math.cos(this.angle) * currentDistance;
-                let y = Math.sin(this.angle) * currentDistance;
-                let z = this.z * (1 + currentScrollProgress * 1.5);
-
-                currentRotationX += (targetRotationX - currentRotationX) * 0.05;
-                currentRotationY += (targetRotationY - currentRotationY) * 0.05;
-                
-                const tiltX = -0.4 + currentRotationX; 
-                const tiltY = currentRotationY;
-
-                let x1 = x * Math.cos(tiltY) - z * Math.sin(tiltY);
-                let z1 = z * Math.cos(tiltY) + x * Math.sin(tiltY);
-                let y2 = y * Math.cos(tiltX) - z1 * Math.sin(tiltX);
-                let z2 = z1 * Math.cos(tiltX) + y * Math.sin(tiltX);
-
-                const perspective = 800;
-                const scale = perspective / (perspective + z2);
-                
-                let screenX = cx + x1 * scale;
-                let screenY = cy + y2 * scale;
-
-                // Mouse interaction physics
-                const dx = (screenX + this.dispX) - mouseX;
-                const dy = (screenY + this.dispY) - mouseY;
-                const distToMouse = Math.sqrt(dx * dx + dy * dy);
-                const repulsionRadius = 140;
-
-                if (distToMouse < repulsionRadius && mouseX > 0) {
-                    const force = Math.pow((repulsionRadius - distToMouse) / repulsionRadius, 2);
-                    this.dispX += (dx / distToMouse) * force * 15;
-                    this.dispY += (dy / distToMouse) * force * 15;
-                }
-
-                this.dispX *= 0.88;
-                this.dispY *= 0.88;
-
-                screenX += this.dispX;
-                screenY += this.dispY;
-
-                // Opacity fades smoothly as stars blast outward
-                const maxDist = Math.min(width, height) * (0.65 + currentScrollProgress * 2.5);
-                let opacity = 1 - (currentDistance / maxDist);
-                if (opacity < 0) opacity = 0;
-                
-                let currentSize = (this.baseSize + currentScrollProgress * 0.6) * scale;
-                if (this.isBright) currentSize += Math.random() * 0.8;
-
-                ctx.beginPath();
-                ctx.arc(screenX, screenY, Math.max(0.1, currentSize), 0, Math.PI * 2);
-                
-                if (this.isBright || currentDistance < 60) {
-                    ctx.shadowBlur = (20 + currentScrollProgress * 15) * scale;
-                    ctx.shadowColor = this.color;
-                } else {
-                    ctx.shadowBlur = 0;
-                }
-
-                ctx.fillStyle = this.color;
-                ctx.globalAlpha = opacity;
-                ctx.fill();
-            }
-        }
-
-        const stars = [];
-        for (let i = 0; i < numStars; i++) stars.push(new Star());
-
-        function drawCore() {
-            ctx.shadowBlur = 0;
-            
-            // Core expands and dissolves gracefully as Section 02 approaches
-            let coreRadius = 180 + currentScrollProgress * 200;
-            let coreOpacity = Math.max(0.05, 1.0 - currentScrollProgress * 0.85);
-
-            ctx.globalAlpha = coreOpacity;
-            const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreRadius);
-            gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-            gradient.addColorStop(0.15, 'rgba(205, 227, 255, 0.5)');
-            gradient.addColorStop(0.4, 'rgba(205, 227, 255, 0.15)');
-            gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-            
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, width, height);
-        }
-
-        function animate() {
-            ctx.clearRect(0, 0, width, height);
-            
-            // Smooth interpolation (lerp) for scroll progress
-            currentScrollProgress += (targetScrollProgress - currentScrollProgress) * 0.08;
-
-            drawCore();
-            
-            for (let i = 0; i < numStars; i++) {
-                stars[i].draw();
-            }
-            
-            ctx.globalAlpha = 1.0;
-            requestAnimationFrame(animate);
-        }
-
-        animate();
-    </script>
-</body>
-</html>
+    </div>
+  );
+}
