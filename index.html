@@ -3,26 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Selvendiran S - Lead Data Engineer Portfolio. Specializing in highly scalable ETL/ELT pipelines and modern cloud architectures.">
     <title>Selvendiran S | Data Engineer</title>
     <!-- Premium Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --bg-color: #000000;
-            --text-main: #ffffff;
-            --text-muted: #a1a1aa;
-            --text-light-gray: #d4d4d4;
+            --text-main: #f5f5f7;
+            --text-muted: #86868b;
+            --text-sub: #c4c4c6;
+            --accent: #00f0ff;
+            --apple-blue: #2997ff;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
             -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        html {
             scroll-behavior: smooth;
         }
 
@@ -31,181 +38,229 @@
             color: var(--text-main);
             overflow-x: hidden;
             overflow-y: scroll; 
+            cursor: default;
+        }
+
+        /* --- FILM GRAIN OVERLAY --- */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.03; z-index: 1; pointer-events: none; mix-blend-mode: overlay;
         }
 
         /* --- FIXED TRANSPARENT CANVAS --- */
         #galaxy-canvas {
             position: fixed; 
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 0; 
-            background: transparent; 
-            pointer-events: none; 
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 0; background: transparent; pointer-events: none; 
+            will-change: transform;
         }
         
         .base-black {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #000;
-            z-index: -1;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000; z-index: -1;
         }
 
-        /* --- Navigation --- */
+        /* --- UI PARALLAX CONTAINER --- */
+        .ui-layer {
+            position: relative;
+            z-index: 10;
+            will-change: transform;
+            transition: transform 0.1s ease-out;
+        }
+
+        /* --- 100% TRANSPARENT NAVIGATION --- */
         nav {
-            position: fixed; top: 0; width: 100%;
-            padding: 1.5rem 2.5rem;
+            position: fixed; top: 0; width: 100%; height: 70px;
+            padding: 0 4rem;
             display: flex; justify-content: space-between; align-items: center;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%);
+            background: transparent; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             z-index: 100;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
         }
 
-        .nav-left { display: flex; align-items: center; gap: 2rem; }
-        .logo { font-weight: 600; font-size: 1.2rem; color: #fff; text-decoration: none; letter-spacing: -0.5px;}
+        .nav-left { display: flex; align-items: center; gap: 3rem; }
+        .logo { 
+            font-weight: 700; font-size: 1.1rem; color: #fff; text-decoration: none; 
+            letter-spacing: -0.02em; transition: opacity 0.2s;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        }
+        .logo:hover { opacity: 0.7; }
         
-        .nav-links { display: flex; gap: 2rem; list-style: none; margin-left: 1rem;}
-        .nav-links a { color: var(--text-light-gray); text-decoration: none; font-size: 0.9rem; font-weight: 400; transition: color 0.2s; }
-        .nav-links a:hover { color: #fff; }
+        .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+        .nav-links a { 
+            color: var(--text-muted); text-decoration: none; font-size: 0.85rem; 
+            font-weight: 500; transition: color 0.3s ease;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.8);
+        }
+        .nav-links a:hover, .nav-links a:focus { color: #ffffff; outline: none; }
 
         .btn-primary {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            color: #fff;
-            padding: 0.6rem 1.5rem; border-radius: 30px;
-            text-decoration: none; font-size: 0.9rem; font-weight: 500;
-            transition: all 0.2s;
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff; padding: 0.6rem 1.6rem; border-radius: 980px;
+            text-decoration: none; font-size: 0.85rem; font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
-        .btn-primary:hover { background: #fff; color: #000; }
+        .btn-primary:hover, .btn-primary:focus { 
+            background: #ffffff;
+            color: #000000;
+            text-shadow: none;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
+            outline: none;
+        }
 
-        /* --- Hero Section --- */
+        /* --- HERO SECTION --- */
         .hero {
-            height: 100vh;
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            padding: 0 10vw; 
-            position: relative;
-            z-index: 5;
-            pointer-events: none; 
+            height: 100vh; display: flex; justify-content: space-between; align-items: center;
+            padding: 0 10vw; position: relative; z-index: 5; pointer-events: none; 
         }
 
         .hero h1 {
-            font-size: 5.5rem; 
-            font-weight: 400; 
-            letter-spacing: -0.04em;
-            margin: 0; 
-            line-height: 1;
-            text-shadow: 0 10px 30px rgba(0,0,0,1); 
+            font-size: clamp(4.5rem, 9vw, 8.5rem); font-weight: 700; letter-spacing: -0.04em; margin: 0; line-height: 0.95;
+            background: linear-gradient(180deg, #ffffff 0%, #a1a1a6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             opacity: 0;
-            animation: fadeUp 1.5s ease 0.3s forwards;
-            pointer-events: auto;
+            animation: fadeUp 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards; pointer-events: auto;
+            will-change: transform;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
         }
 
-        @keyframes fadeUp {
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
         .scroll-indicator {
-            position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
-            color: var(--text-muted); font-size: 0.85rem;
-            animation: pulseOpacity 2s infinite;
-            pointer-events: auto;
+            position: absolute; bottom: 3rem; left: 50%; transform: translateX(-50%);
+            color: var(--text-muted); font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
+            font-weight: 600; text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+            animation: pulseOpacity 2.5s infinite; pointer-events: auto;
         }
-        @keyframes pulseOpacity { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        @keyframes pulseOpacity { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; color: #fff; } }
 
-        /* --- CONTENT WRAPPER - TRANSPARENT --- */
+        /* --- CONTENT WRAPPER --- */
         .content-wrapper {
-            background: transparent; 
-            position: relative;
-            z-index: 10;
-            padding-top: 15vh;
-            padding-bottom: 4rem;
-            min-height: 100vh;
+            background: transparent; position: relative; z-index: 10;
+            padding-top: 5vh; padding-bottom: 6rem; min-height: 100vh;
         }
 
+        .reveal {
+            opacity: 0; transform: translateY(40px);
+            transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* --- FULLY TRANSPARENT SECTIONS --- */
         section { 
-            padding: 2rem 5%; 
+            padding: 4rem 2rem; 
             max-width: 1100px; 
-            margin: 0 auto 4rem; 
+            margin: 0 auto 2rem; 
             background: transparent; 
-            border: none; 
-            box-shadow: none; 
+            border: 1px solid transparent; 
+            border-radius: 24px;
+            will-change: transform;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, background 0.4s ease;
         }
         
-        .section-header { margin-bottom: 3.5rem; }
-        .section-header h2 { 
-            font-size: 2.2rem; font-weight: 400; color: #fff;
-            border-bottom: none; 
-            letter-spacing: -0.02em;
-            text-shadow: 0 4px 12px rgba(0,0,0,1); 
+        section:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.01);
+            transform: scale(1.01);
         }
 
-        .experience-item {
-            display: grid;
-            grid-template-columns: 1fr 2fr; 
-            gap: 2rem;
-            margin-bottom: 3rem;
+        .section-header { 
+            margin-bottom: 3rem; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+            padding-bottom: 1.2rem;
         }
+        .section-header h2 { 
+            font-size: 0.9rem; font-weight: 600; color: var(--text-muted);
+            letter-spacing: 0.15em; text-transform: uppercase;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .experience-item { display: grid; grid-template-columns: 1fr 2.5fr; gap: 4rem; }
 
         .exp-meta h3 { 
-            color: #fff; font-size: 1.4rem; font-weight: 600; 
-            margin-bottom: 0.4rem; letter-spacing: -0.01em;
-            text-shadow: 0 4px 8px rgba(0,0,0,1);
+            color: #ffffff; font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; 
+            letter-spacing: -0.02em; line-height: 1.2;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.8);
         }
-        .exp-meta p { 
-            color: var(--text-muted); font-size: 1.05rem; font-weight: 400; 
-            text-shadow: 0 2px 4px rgba(0,0,0,1);
-        }
+        .exp-meta p { color: var(--apple-blue); font-size: 1.1rem; font-weight: 500; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
         
-        .exp-details { 
-            color: var(--text-main); 
-            font-size: 1.15rem; 
-            font-weight: 400; 
-            line-height: 1.7;
-            text-shadow: 0 4px 12px rgba(0,0,0,1); 
-        }
+        .exp-details { color: var(--text-sub); font-size: 1.2rem; font-weight: 400; line-height: 1.7; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
         .exp-details p { margin-bottom: 1.5rem; }
 
-        /* Tech Tags */
-        .tech-list { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+        /* --- TRANSPARENT OUTLINE TECH PILLS --- */
+        .tech-list { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 2rem; }
         .tech-tag {
-            background: rgba(0, 0, 0, 0.75); 
-            border: 1px solid rgba(255, 255, 255, 0.3); 
-            color: #fff;
-            padding: 0.6rem 1.2rem; 
-            border-radius: 30px; 
-            font-size: 0.9rem;
-            backdrop-filter: blur(5px);
+            background: rgba(0,0,0,0.2); 
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-main);
+            padding: 0.6rem 1.4rem; border-radius: 980px; 
+            font-size: 0.85rem; font-weight: 500; letter-spacing: -0.01em;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        .tech-tag:hover {
+            border-color: rgba(255, 255, 255, 0.8); 
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255,255,255,0.1);
         }
 
-        footer { text-align: center; padding: 4rem 0 2rem; color: #888; font-size: 0.9rem; text-shadow: 0 2px 4px #000; }
+        /* --- CONTACT SECTION --- */
+        .contact-links {
+            display: flex; gap: 2rem; margin-top: 1rem;
+        }
+        .contact-link {
+            color: #fff; font-size: 1.2rem; font-weight: 500; text-decoration: none;
+            border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 0.2rem;
+            transition: all 0.3s ease;
+        }
+        .contact-link:hover {
+            color: var(--accent); border-bottom-color: var(--accent);
+        }
+
+        footer { 
+            text-align: center; padding: 6rem 0 3rem; color: var(--text-muted); 
+            font-size: 0.85rem; font-weight: 400; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
 
         @media (max-width: 768px) {
+            nav { padding: 0 1.5rem; }
             .hero { flex-direction: column; justify-content: center; gap: 2rem; }
-            .hero h1 { font-size: 3rem; }
+            .hero h1 { font-size: 4rem; }
             .nav-links { display: none; }
-            section { padding: 1.5rem; }
-            .experience-item { grid-template-columns: 1fr; gap: 1rem; }
+            section { padding: 2.2rem 5%; }
+            .experience-item { grid-template-columns: 1fr; gap: 1.5rem; }
         }
     </style>
 </head>
 <body>
     
     <div class="base-black"></div>
+    <div class="noise-overlay"></div>
 
     <canvas id="galaxy-canvas"></canvas>
 
-    <div class="ui-layer">
+    <div class="ui-layer" id="ui-layer">
         
-        <nav>
+        <nav aria-label="Main Navigation">
             <div class="nav-left">
-                <a href="#" class="logo">Selvendiran S</a>
+                <a href="#" class="logo" aria-label="Home">Selvendiran S</a>
                 <ul class="nav-links">
-                    <li><a href="#about">The Destination</a></li>
+                    <li><a href="#about">About</a></li>
                     <li><a href="#experience">Experience</a></li>
-                    <li><a href="#skills">Infrastructure</a></li>
+                    <li><a href="#skills">Stack</a></li>
+                    <li><a href="#contact">Contact</a></li>
                 </ul>
             </div>
             <div class="nav-right">
@@ -214,18 +269,17 @@
         </nav>
 
         <main class="hero">
-            <h1>Data</h1>
-            <h1>Engineer</h1>
-            <div class="scroll-indicator">Scroll down to blast stars</div>
+            <h1 class="parallax-hero">Data</h1>
+            <h1 class="parallax-hero">Engineer</h1>
+            <div class="scroll-indicator" aria-hidden="true">Scroll down to uncoil galaxy into starfield</div>
         </main>
 
         <div class="content-wrapper">
             
-            <section id="about">
+            <section id="about" class="reveal parallax-section">
                 <div class="section-header">
                     <h2>01 / The Destination</h2>
                 </div>
-                
                 <div class="experience-item">
                     <div class="exp-meta">
                         <h3>Lead Data Architect</h3>
@@ -238,21 +292,20 @@
                 </div>
             </section>
 
-            <section id="experience">
+            <section id="experience" class="reveal parallax-section">
                 <div class="section-header">
                     <h2>02 / Experience</h2>
                 </div>
-                
                 <div class="experience-item">
                     <div class="exp-meta">
                         <h3>Cognizant</h3>
                         <p>Data Engineer</p>
-                        <p style="margin-top: 0.3rem;">Present &middot; Chennai</p>
+                        <p style="margin-top: 0.3rem; font-size: 0.9rem; color: var(--text-muted);">Present &middot; Chennai</p>
                     </div>
                     <div class="exp-details">
                         <p>Designing and orchestrating highly scalable ETL/ELT pipelines to process massive volumes of enterprise data with minimal latency.</p>
                         <p>Driving the migration of legacy on-premise systems to resilient modern cloud architectures, optimizing complex SQL queries and database schemas to significantly reduce reporting lag times.</p>
-                        <div class="tech-list">
+                        <div class="tech-list" aria-label="Technologies used">
                             <span class="tech-tag">Apache Spark</span>
                             <span class="tech-tag">Airflow</span>
                             <span class="tech-tag">AWS</span>
@@ -263,11 +316,10 @@
                 </div>
             </section>
 
-            <section id="skills">
+            <section id="skills" class="reveal parallax-section">
                 <div class="section-header">
                     <h2>03 / Infrastructure Stack</h2>
                 </div>
-                
                 <div class="experience-item">
                     <div class="exp-meta">
                         <h3>Core Capabilities</h3>
@@ -275,219 +327,359 @@
                     </div>
                     <div class="exp-details">
                         <p>Proficient in deploying and maintaining resilient data ecosystems utilizing modern orchestration tools, cloud compute engines, and scalable warehousing.</p>
-                        <div class="tech-list">
+                        <div class="tech-list" aria-label="Core Skills">
                             <span class="tech-tag">Apache Spark</span>
                             <span class="tech-tag">Apache Airflow</span>
                             <span class="tech-tag">AWS (S3, Glue)</span>
                             <span class="tech-tag">Azure Data Factory</span>
                             <span class="tech-tag">Snowflake</span>
                             <span class="tech-tag">PostgreSQL</span>
+                            <span class="tech-tag">Kafka</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="contact" class="reveal parallax-section">
+                <div class="section-header">
+                    <h2>04 / Initiate Sequence</h2>
+                </div>
+                <div class="experience-item">
+                    <div class="exp-meta">
+                        <h3>Let's Connect</h3>
+                        <p>Open for Opportunities</p>
+                    </div>
+                    <div class="exp-details">
+                        <p>Whether you have a massive data lake problem that needs architecture, or you just want to say hi, my inbox is always open.</p>
+                        <div class="contact-links">
+                            <a href="mailto:your.email@example.com" class="contact-link">Email Me</a>
+                            <a href="https://linkedin.com/" target="_blank" class="contact-link">LinkedIn</a>
+                            <a href="https://github.com/" target="_blank" class="contact-link">GitHub</a>
                         </div>
                     </div>
                 </div>
             </section>
             
-            <footer>
-                Selvendiran S &copy; 2026. Architecting data.
+            <footer class="reveal">
+                Selvendiran S &copy; 2026. Architecting data. Built with world-class precision.
             </footer>
         </div>
     </div>
 
-    <!-- ======================================================== -->
-    <!-- NON-COLLIDING CONTROLLED SCROLL BLAST GALAXY ENGINE      -->
-    <!-- ======================================================== -->
+    <!-- ========================================================================= -->
+    <!-- GALAXY TO FULL-SCREEN STARFIELD UNCOILING ENGINE                          -->
+    <!-- ========================================================================= -->
     <script>
-        const canvas = document.getElementById('galaxy-canvas');
-        const ctx = canvas.getContext('2d');
-        const experienceSection = document.getElementById('experience');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, { threshold: 0.15 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-        let width, height, cx, cy;
+        const canvas = document.getElementById('galaxy-canvas');
+        const ctx = canvas.getContext('2d', { alpha: false });
+        const heroTitles = document.querySelectorAll('.parallax-hero');
+        const parallaxSections = document.querySelectorAll('.parallax-section');
+
+        let dpr = 1;
+        let width = 0, height = 0, cx = 0, cy = 0;
         let mouseX = -1000, mouseY = -1000;
         let targetRotationX = 0, targetRotationY = 0;
         let currentRotationX = 0, currentRotationY = 0;
+        let normMouseX = 0, normMouseY = 0;
 
-        // Controlled Scroll Tracking
         let targetScrollProgress = 0;
         let currentScrollProgress = 0;
 
         function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-            cx = width / 2;
-            cy = height * 0.45; 
+            dpr = Math.min(window.devicePixelRatio || 1, 2);
+            width = window.innerWidth;
+            height = window.innerHeight;
+            
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            
+            ctx.scale(dpr, dpr);
+            cx = width / 2; cy = height * 0.45; 
         }
-        window.addEventListener('resize', resize);
-        resize();
+        window.addEventListener('resize', resize); resize();
 
-        document.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-            
-            targetRotationY = ((e.clientX - cx) / cx) * 0.3; 
-            targetRotationX = ((e.clientY - cy) / cy) * 0.3; 
-        });
+        /* --- DESKTOP & MOBILE PARALLAX --- */
+        function handleMove(clientX, clientY) {
+            mouseX = clientX; mouseY = clientY;
+            normMouseX = (clientX - cx) / cx;
+            normMouseY = (clientY - cy) / cy;
 
-        document.addEventListener('mouseleave', () => {
-            mouseX = -1000;
-            mouseY = -1000;
-        });
+            targetRotationY = normMouseX * 0.25; 
+            targetRotationX = normMouseY * 0.25; 
 
-        // Calculate scroll fraction mapped up to section "02 / Experience"
+            heroTitles.forEach((h1, idx) => {
+                let depth = (idx + 1) * 18;
+                h1.style.transform = `translate3d(${normMouseX * depth}px, ${normMouseY * depth}px, 0)`;
+            });
+
+            parallaxSections.forEach(section => {
+                section.style.transform = `translate3d(${normMouseX * 12}px, ${normMouseY * 12}px, 0)`;
+            });
+        }
+
+        function handleLeave() {
+            mouseX = -1000; mouseY = -1000;
+            normMouseX = 0; normMouseY = 0;
+            targetRotationX = 0; targetRotationY = 0;
+            heroTitles.forEach(h1 => h1.style.transform = `translate3d(0, 0, 0)`);
+            parallaxSections.forEach(sec => sec.style.transform = `translate3d(0, 0, 0)`);
+        }
+
+        document.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
+        document.addEventListener('mouseleave', handleLeave);
+
+        document.addEventListener('touchmove', (e) => {
+            if(e.touches.length > 0) handleMove(e.touches[0].clientX, e.touches[0].clientY);
+        }, {passive: true});
+        document.addEventListener('touchend', handleLeave);
+
+        /* --- SMOOTH SCROLL TRACKING --- */
         window.addEventListener('scroll', () => {
-            const sectionTop = experienceSection.offsetTop;
             const scrollY = window.scrollY;
-            
-            // Reaches 1.0 exactly when scrolling reaches Section 02 / Experience
-            let progress = scrollY / Math.max(1, sectionTop);
-            targetScrollProgress = Math.min(Math.max(progress, 0), 1.2); // Smooth clamp
+            let progress = scrollY / (window.innerHeight * 1.5); 
+            targetScrollProgress = Math.min(Math.max(progress, 0), 1.0); 
         });
 
-        const numStars = 4500; 
+        const numStars = 4800; 
         const arms = 2; 
-        const baseRotationSpeed = 0.0025; 
-        
-        const colors = ['#ffffff', '#ffffff', '#cde3ff', '#ffdfc2', '#a3cfff'];
+        const baseRotationSpeed = 0.005; 
+        const colors = ['#ffffff', '#ffffff', '#e0f4ff', '#ffebdb', '#bce3ff'];
+        const PI2 = Math.PI * 2;
 
+        function drawFastStar(ctx, x, y, radius, color) {
+            ctx.fillStyle = color;
+            if (radius < 1.2) {
+                ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+            } else {
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, PI2);
+                ctx.fill();
+            }
+        }
+
+        // --- 1. CRISP BACKGROUND STARS ---
+        class BackgroundStar {
+            constructor() {
+                this.x = (Math.random() - 0.5) * width * 3;
+                this.y = (Math.random() - 0.5) * height * 3;
+                this.z = (Math.random() - 0.5) * 2000;
+                this.size = Math.random() * 0.7 + 0.2;
+                this.alpha = Math.random() * 0.6 + 0.2;
+            }
+            draw(tiltX, tiltY) {
+                let x1 = this.x * Math.cos(tiltY) - this.z * Math.sin(tiltY);
+                let z1 = this.z * Math.cos(tiltY) + this.x * Math.sin(tiltY);
+                let y2 = this.y * Math.cos(tiltX) - z1 * Math.sin(tiltX);
+                let z2 = z1 * Math.cos(tiltX) + this.y * Math.sin(tiltX);
+
+                const perspective = 800;
+                if (z2 < -perspective) return;
+                const scale = perspective / (perspective + z2);
+                let screenX = cx + x1 * scale;
+                let screenY = cy + y2 * scale;
+
+                if (screenX < -50 || screenX > width + 50 || screenY < -50 || screenY > height + 50) return;
+
+                ctx.globalAlpha = this.alpha;
+                let bSize = Math.max(0.3, this.size * scale);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(screenX, screenY, bSize, bSize);
+            }
+        }
+
+        const bgStars = Array.from({length: 1500}, () => new BackgroundStar());
+
+        // --- 2. S-SHAPE SPIRAL morphing to FULL SCREEN STARFIELD ---
         class Star {
             constructor() {
                 const r = Math.random();
-                // Base spiral distance
                 this.baseDistance = Math.pow(r, 1.5) * (Math.min(width, height) * 0.65);
-                
-                const armAngle = (Math.PI * 2 / arms) * Math.floor(Math.random() * arms);
+                const armAngle = (PI2 / arms) * Math.floor(Math.random() * arms);
                 const twist = this.baseDistance * 0.01; 
-                
                 const scatterMult = (this.baseDistance / (Math.min(width, height) * 0.65)) * 1.2 + 0.1;
                 const noise = (Math.random() - 0.5) * scatterMult * Math.PI;
                 
                 this.angle = armAngle + twist + noise;
                 
-                const thickness = Math.max(1, 60 - (this.baseDistance * 0.1));
-                this.z = (Math.random() - 0.5) * thickness;
-
-                this.baseSize = Math.random() * 1.8 + 0.2;
+                // Random target position when uncoiled to cover full screen
+                this.targetX = (Math.random() - 0.5) * width * 2.2;
+                this.targetY = (Math.random() - 0.5) * height * 2.2;
                 
+                const thickness = Math.max(1, 60 - (this.baseDistance * 0.1));
+                this.baseZ = (Math.random() - 0.5) * thickness;
+
+                this.baseSize = Math.random() * 0.9 + 0.2;
                 if (this.baseDistance < 40) {
                     this.color = '#ffffff';
                 } else {
                     this.color = colors[Math.floor(Math.random() * colors.length)];
                 }
                 
-                this.isBright = Math.random() > 0.92;
-
-                // Mouse interaction displacement
-                this.dispX = 0;
-                this.dispY = 0;
-
-                // Unique radial blast multiplier per star for non-colliding expansion
-                this.blastSpeedFactor = 1.0 + (this.baseDistance / (Math.min(width, height) * 0.65)) * 2.5;
+                this.isBright = Math.random() > 0.95;
+                this.dispX = 0; this.dispY = 0;
             }
 
-            draw() {
-                // Acceleration during scroll blast
-                let effectiveSpeed = baseRotationSpeed * (1 + currentScrollProgress * 3.5);
+            draw(effectiveSpeed, uncoilFactor, tiltX, tiltY) {
                 this.angle -= effectiveSpeed;
 
-                // Non-colliding Radial Blast Math:
-                // Every star expands outward along its unique radial trajectory vector
-                let expansionFactor = 1 + (currentScrollProgress * 3.2 * this.blastSpeedFactor);
-                let currentDistance = this.baseDistance * expansionFactor;
+                // Galaxy spiral coordinates
+                let spiralX = Math.cos(this.angle) * this.baseDistance;
+                let spiralY = Math.sin(this.angle) * this.baseDistance;
 
-                let x = Math.cos(this.angle) * currentDistance;
-                let y = Math.sin(this.angle) * currentDistance;
-                let z = this.z * (1 + currentScrollProgress * 1.5);
+                // Interpolate from tight galaxy spiral to full-screen spread starfield
+                let restX = spiralX * (1 - uncoilFactor) + this.targetX * uncoilFactor;
+                let restY = spiralY * (1 - uncoilFactor) + this.targetY * uncoilFactor;
+                let z = this.baseZ;
 
-                currentRotationX += (targetRotationX - currentRotationX) * 0.05;
-                currentRotationY += (targetRotationY - currentRotationY) * 0.05;
-                
-                const tiltX = -0.4 + currentRotationX; 
-                const tiltY = currentRotationY;
-
-                let x1 = x * Math.cos(tiltY) - z * Math.sin(tiltY);
-                let z1 = z * Math.cos(tiltY) + x * Math.sin(tiltY);
-                let y2 = y * Math.cos(tiltX) - z1 * Math.sin(tiltX);
-                let z2 = z1 * Math.cos(tiltX) + y * Math.sin(tiltX);
+                let x1 = restX * Math.cos(tiltY) - z * Math.sin(tiltY);
+                let z1 = z * Math.cos(tiltY) + restX * Math.sin(tiltY);
+                let y2 = restY * Math.cos(tiltX) - z1 * Math.sin(tiltX);
+                let z2 = z1 * Math.cos(tiltX) + restY * Math.sin(tiltX);
 
                 const perspective = 800;
+                if(z2 < -perspective) return;
                 const scale = perspective / (perspective + z2);
                 
                 let screenX = cx + x1 * scale;
                 let screenY = cy + y2 * scale;
 
-                // Mouse interaction physics
+                // Mouse interaction / repulsion
+                const repulsionRadius = 140;
                 const dx = (screenX + this.dispX) - mouseX;
                 const dy = (screenY + this.dispY) - mouseY;
-                const distToMouse = Math.sqrt(dx * dx + dy * dy);
-                const repulsionRadius = 140;
-
-                if (distToMouse < repulsionRadius && mouseX > 0) {
-                    const force = Math.pow((repulsionRadius - distToMouse) / repulsionRadius, 2);
-                    this.dispX += (dx / distToMouse) * force * 15;
-                    this.dispY += (dy / distToMouse) * force * 15;
+                
+                if (mouseX > 0 && Math.abs(dx) < repulsionRadius && Math.abs(dy) < repulsionRadius) {
+                    const distToMouse = Math.sqrt(dx * dx + dy * dy);
+                    if (distToMouse < repulsionRadius) {
+                        const force = Math.pow((repulsionRadius - distToMouse) / repulsionRadius, 2);
+                        this.dispX += (dx / distToMouse) * force * 15;
+                        this.dispY += (dy / distToMouse) * force * 15;
+                    }
                 }
 
-                this.dispX *= 0.88;
-                this.dispY *= 0.88;
+                this.dispX *= 0.88; this.dispY *= 0.88;
+                screenX += this.dispX; screenY += this.dispY;
 
-                screenX += this.dispX;
-                screenY += this.dispY;
+                let opacity = Math.max(0.45, 1.0 - (uncoilFactor * 0.35));
+                let starRadius = Math.max(0.3, this.baseSize * scale * 0.75);
 
-                // Opacity fades smoothly as stars blast outward
-                const maxDist = Math.min(width, height) * (0.65 + currentScrollProgress * 2.5);
-                let opacity = 1 - (currentDistance / maxDist);
-                if (opacity < 0) opacity = 0;
-                
-                let currentSize = (this.baseSize + currentScrollProgress * 0.6) * scale;
-                if (this.isBright) currentSize += Math.random() * 0.8;
-
-                ctx.beginPath();
-                ctx.arc(screenX, screenY, Math.max(0.1, currentSize), 0, Math.PI * 2);
-                
-                if (this.isBright || currentDistance < 60) {
-                    ctx.shadowBlur = (20 + currentScrollProgress * 15) * scale;
-                    ctx.shadowColor = this.color;
-                } else {
-                    ctx.shadowBlur = 0;
-                }
-
-                ctx.fillStyle = this.color;
                 ctx.globalAlpha = opacity;
-                ctx.fill();
+
+                if (this.isBright) {
+                    drawFastStar(ctx, screenX, screenY, Math.max(0.8, starRadius), this.color);
+                    ctx.strokeStyle = this.color;
+                    ctx.lineWidth = 0.5;
+                    let spike = (starRadius * 2.0) + 1.0;
+                    ctx.beginPath();
+                    ctx.moveTo(screenX - spike, screenY); ctx.lineTo(screenX + spike, screenY);
+                    ctx.moveTo(screenX, screenY - spike); ctx.lineTo(screenX, screenY + spike);
+                    ctx.stroke();
+                } else {
+                    drawFastStar(ctx, screenX, screenY, Math.max(0.3, starRadius), this.color);
+                }
             }
         }
 
-        const stars = [];
-        for (let i = 0; i < numStars; i++) stars.push(new Star());
+        const mainStars = Array.from({length: numStars}, () => new Star());
 
-        function drawCore() {
-            ctx.shadowBlur = 0;
-            
-            // Core expands and dissolves gracefully as Section 02 approaches
-            let coreRadius = 180 + currentScrollProgress * 200;
-            let coreOpacity = Math.max(0.05, 1.0 - currentScrollProgress * 0.85);
+        // --- 3. SHOOTING STARS ---
+        class ShootingStar {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * width * 1.5;
+                this.y = Math.random() * height * 0.5 - height * 0.5;
+                this.length = 70 + Math.random() * 90;
+                this.speed = 16 + Math.random() * 14;
+                this.angle = (Math.PI / 4) + (Math.random() * 0.4 - 0.2); 
+                this.opacity = 0;
+                this.fadeSpeed = 0.012 + Math.random() * 0.02;
+                this.state = 'fade-in';
+                this.delay = Math.random() * 150; 
+            }
+            draw() {
+                if (currentScrollProgress < 0.05) return;
 
-            ctx.globalAlpha = coreOpacity;
-            const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreRadius);
-            gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-            gradient.addColorStop(0.15, 'rgba(205, 227, 255, 0.5)');
-            gradient.addColorStop(0.4, 'rgba(205, 227, 255, 0.15)');
-            gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-            
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, width, height);
+                if (this.delay > 0) {
+                    this.delay--;
+                    return;
+                }
+
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
+
+                if (this.state === 'fade-in') {
+                    this.opacity += this.fadeSpeed;
+                    if (this.opacity >= 1) {
+                        this.opacity = 1;
+                        this.state = 'fade-out';
+                    }
+                } else {
+                    this.opacity -= this.fadeSpeed * 0.8;
+                    if (this.opacity <= 0 || this.x > width + 200 || this.y > height + 200) {
+                        this.reset();
+                        return;
+                    }
+                }
+
+                ctx.save();
+                let scrollAlpha = Math.min(1, (currentScrollProgress - 0.05) * 4);
+                ctx.globalAlpha = this.opacity * scrollAlpha;
+                
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.x - Math.cos(this.angle) * this.length, this.y - Math.sin(this.angle) * this.length);
+                
+                let grad = ctx.createLinearGradient(this.x, this.y, this.x - Math.cos(this.angle) * this.length, this.y - Math.sin(this.angle) * this.length);
+                grad.addColorStop(0, '#ffffff');
+                grad.addColorStop(0.25, '#00f0ff');
+                grad.addColorStop(1, 'transparent');
+                
+                ctx.strokeStyle = grad;
+                ctx.lineWidth = 1.2;
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 1.2, 0, PI2);
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+                
+                ctx.restore();
+            }
         }
+
+        const shootingStars = Array.from({length: 4}, () => new ShootingStar());
 
         function animate() {
-            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, width, height);
             
-            // Smooth interpolation (lerp) for scroll progress
-            currentScrollProgress += (targetScrollProgress - currentScrollProgress) * 0.08;
+            // Smooth liquid interpolation
+            currentScrollProgress += (targetScrollProgress - currentScrollProgress) * 0.04;
+            currentRotationX += (targetRotationX - currentRotationX) * 0.05;
+            currentRotationY += (targetRotationY - currentRotationY) * 0.05;
 
-            drawCore();
+            const tiltX = -0.4 + currentRotationX; 
+            const tiltY = currentRotationY;
             
-            for (let i = 0; i < numStars; i++) {
-                stars[i].draw();
-            }
+            // Slow, steady rotation
+            const effectiveSpeed = baseRotationSpeed * (1 - currentScrollProgress * 0.5);
+            // Smooth uncoil factor
+            const uncoilFactor = Math.pow(currentScrollProgress, 1.2);
+            
+            for (let i = 0; i < bgStars.length; i++) bgStars[i].draw(tiltX, tiltY);
+            for (let i = 0; i < numStars; i++) mainStars[i].draw(effectiveSpeed, uncoilFactor, tiltX, tiltY);
+            for (let i = 0; i < shootingStars.length; i++) shootingStars[i].draw();
             
             ctx.globalAlpha = 1.0;
             requestAnimationFrame(animate);
